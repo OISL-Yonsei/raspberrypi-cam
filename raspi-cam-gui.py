@@ -12,7 +12,7 @@ class CameraApp(QWidget):
         
         # Initialize Camera
         self.camera = PiCamera()
-        self.camera.resolution = MAX_RESOLUTION
+        self.camera.resolution = (1920,1080)
         # Open GUI
         self.initUI()
 
@@ -94,7 +94,7 @@ class CameraApp(QWidget):
         self.start_button.clicked.connect(self.setting)
 
         self.setWindowTitle('Raspberry-pi Camera')
-        self.move(1000, 200)
+        self.move(1300, 200)
         self.show()
 
 
@@ -117,29 +117,28 @@ class CameraApp(QWidget):
         if self.start_flag == 0:
             self.start_button.setText('Setting(s)')
             self.start_flag = 1
-            self.camera.start_preview()
+            self.camera.start_preview(fullscreen=False,window=(100,100,1000,700))
         else:
             self.camera.stop_preview()
 
-            if self.shutter_auto.isChecked() == Qt.Checked:
+            if self.shutter_auto.isChecked():
                 self.camera.exposure_mode = 'auto'
             else:
                 self.camera.exposure_mode = 'off'
                 self.camera.shutter_speed = int(self.shutter_value.text())
                         
-            if self.gain_auto.isChecked() == Qt.Checked:
+            if self.gain_auto.isChecked():
                 self.camera.awb_mode = 'auto'
             else:
                 self.camera.awb_mode = 'off'
                 self.camera.awb_gain = float(self.gain_value.text())
 
-            if self.iso_auto.isChecked() == Qt.Checked:
+            if self.iso_auto.isChecked():
                 self.camera.iso = 0
             else:
                 self.camera.iso = int(self.iso_value.text())
             
-            self.camera.start_preview()
-
+            self.camera.start_preview(fullscreen=False,window=(100,100,1000,700))
 
     # keyboard interrupt
     def keyPressEvent(self, e):
