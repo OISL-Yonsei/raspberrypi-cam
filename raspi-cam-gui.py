@@ -2,13 +2,18 @@ import sys, os
 from time import sleep
 from PyQt5.QtWidgets import (QApplication, QWidget, QToolTip, QPushButton, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QRadioButton, QGridLayout, QCheckBox)
 from PyQt5.QtCore import Qt
+from picamera import PiCamera
 
 
 class CameraApp(QWidget):
 
     def __init__(self):
         super().__init__()
-
+        
+        # Initialize Camera
+        self.camera = PiCamera()
+        self.camera.resolution = MAX_RESOLUTION
+        # Open GUI
         self.initUI()
 
     def initUI(self):
@@ -34,8 +39,8 @@ class CameraApp(QWidget):
         shutter_label = QLabel('Shutter speed', self)
         self.shutter_value = QLineEdit(self)
         shutter_label.setAlignment(Qt.AlignCenter)
-        shutter_auto = QCheckBox(self)
-        shutter_auto.toggle()
+        self.shutter_auto = QCheckBox(self)
+        self.shutter_auto.toggle()
 
         image_prefix_label = QLabel('Image name', self)
         self.image_prefix = QLineEdit(self)
@@ -44,14 +49,14 @@ class CameraApp(QWidget):
         iso_label = QLabel('ISO', self)
         self.iso_value = QLineEdit(self)
         iso_label.setAlignment(Qt.AlignCenter)
-        iso_auto = QCheckBox(self)
-        iso_auto.toggle()
+        self.iso_auto = QCheckBox(self)
+        self.iso_auto.toggle()
         
         gain_label = QLabel('Gain(awb)', self)
         self.gain_value = QLineEdit(self)
         gain_label.setAlignment(Qt.AlignCenter)
-        gain_auto = QCheckBox(self)
-        gain_auto.toggle()
+        self.gain_auto = QCheckBox(self)
+        self.gain_auto.toggle()
         
         auto_label = QLabel('Auto',self)
         auto_label.setAlignment(Qt.AlignCenter)
@@ -73,44 +78,13 @@ class CameraApp(QWidget):
         grid.addWidget(self.iso_value, 3, 1)
         grid.addWidget(self.gain_value, 4, 1)
 
-        grid.addWidget(shutter_auto, 2, 2)
-        grid.addWidget(iso_auto, 3, 2)
-        grid.addWidget(gain_auto, 4, 2)
+        grid.addWidget(self.shutter_auto, 2, 2)
+        grid.addWidget(self.iso_auto, 3, 2)
+        grid.addWidget(self.gain_auto, 4, 2)
 
         grid.addWidget(self.cap_button, 5, 0)
         grid.addWidget(self.rec_button, 5, 1)
         grid.addWidget(self.start_button, 5, 2)
-        
-        # hbox_button = QHBoxLayout()
-        # hbox_button.addWidget(self.cap_button)
-        # hbox_button.addWidget(self.rec_button)
-        # hbox_button.addWidget(self.start_button)
-
-        # hbox_shutter = QHBoxLayout()
-        # hbox_shutter.addWidget(shutter_label)
-        # hbox_shutter.addWidget(self.shutter_value)
-
-        # hbox_image = QHBoxLayout()
-        # hbox_image.addWidget(image_prefix_label)
-        # hbox_image.addWidget(self.image_prefix)
-
-        # hbox_iso = QHBoxLayout()
-        # hbox_iso.addWidget(iso_label)
-        # hbox_iso.addWidget(self.iso_value)
-
-        # hbox_gain = QHBoxLayout()
-        # hbox_gain.addWidget(gain_label)
-        # hbox_gain.addWidget(self.gain_value)
-        
-        # vbox = QVBoxLayout()
-        # vbox.addLayout(hbox_shutter)
-        # vbox.addLayout(hbox_image)
-        # vbox.addLayout(hbox_iso)
-        # vbox.addLayout(hbox_gain)
-        # vbox.addStretch(4)
-        # vbox.addLayout(hbox_button)
-        # vbox.addStretch(0.5)
-        # self.setLayout(vbox)
 
 
         # Connection funtion
@@ -143,7 +117,28 @@ class CameraApp(QWidget):
         if self.start_flag == 0:
             self.start_button.setText('Setting(s)')
             self.start_flag = 1
+            self.camera.start_preview()
+        else:
+            self.camera.stop_preview()
 
+            if self.shutter_auto.isChecked() == Qt.Checked:
+                self.camera.exposure_mode = 'auto'
+            else:
+                self.camera.exposure_mode = 'off'
+                self.camera.shutter_speed = int(self.shutter_value.text())
+                        
+            if self.gain_auto.isChecked() == Qt.Checked:
+                self.camera.awb_mode = 'auto'
+            else:
+                self.camera.awb_mode = 'off'
+                self.camera.awb_gain = float(self.gain_value.text())
+
+            if self.iso_auto.isChecked() == Qt.Checked:
+                self.camera.iso = 0
+            else:
+                self.camera.iso = int(self.iso_value.text())
+            
+            self.camera.start_preview()
 
 
     # keyboard interrupt
