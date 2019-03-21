@@ -12,14 +12,14 @@ class CameraApp(QWidget):
         
         # Initialize Camera
         self.camera = PiCamera()
-        self.camera.resolution = (1920,1080)
+        self.camera.resolution = 'FHD'
         # Open GUI
         self.initUI()
 
     def initUI(self):
         self.recording_flag = 0
         self.start_flag = 0
-
+        self.count = 1
 
         # Button initialize
         ############################### 
@@ -31,6 +31,9 @@ class CameraApp(QWidget):
         
         self.start_button = QPushButton('Start(s)', self)
         self.start_button.setToolTip("This is a Start Button")
+
+        self.reset_button = QPushButton('Reset(r)', self)
+        self.reset_button.setToolTip("This is a Reset button to reset number counting")
         
 
         # Setting value initialize
@@ -85,6 +88,7 @@ class CameraApp(QWidget):
         grid.addWidget(self.cap_button, 5, 0)
         grid.addWidget(self.rec_button, 5, 1)
         grid.addWidget(self.start_button, 5, 2)
+        grid.addWidget(self.reset_button, 1, 2)
 
 
         # Connection funtion
@@ -92,6 +96,7 @@ class CameraApp(QWidget):
         self.cap_button.clicked.connect(self.capture)
         self.rec_button.clicked.connect(self.record)
         self.start_button.clicked.connect(self.setting)
+        self.reset_button.clicked.connect(self.reset)
 
         self.setWindowTitle('Raspberry-pi Camera')
         self.move(1300, 200)
@@ -99,7 +104,9 @@ class CameraApp(QWidget):
 
 
     def capture(self):
-        print('Capture Complete')
+        self.camera.resolution = self.camera.MAX_RESOLUTION
+        self.camera.capture()
+        # print('Capture Complete')
     
 
     def record(self):
@@ -140,6 +147,10 @@ class CameraApp(QWidget):
             
             self.camera.start_preview(fullscreen=False,window=(100,100,1000,700))
 
+
+    def reset(self):
+        self.count = 1
+
     # keyboard interrupt
     def keyPressEvent(self, e):
         if e.key() == Qt.Key_Escape: # esc = close window
@@ -150,6 +161,8 @@ class CameraApp(QWidget):
             self.record()
         elif e.key() == Qt.Key_S: # s = Set the setting value
             self.setting()
+        elif e.key() == Qt.Key_R: # r = Reset count
+            self.reset()
 
 
 if __name__ == '__main__':
