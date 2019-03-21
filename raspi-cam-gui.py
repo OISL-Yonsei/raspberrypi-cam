@@ -104,18 +104,22 @@ class CameraApp(QWidget):
 
 
     def capture(self):
+        self.camera.stop_preview()
         self.camera.resolution = self.camera.MAX_RESOLUTION
-        self.camera.capture()
+        filename = self.image_prefix.text() + str(self.count).zfill(2) + '.jpg'
+        self.camera.capture(filename)
+        self.camera.resolution = 'FHD'
         # print('Capture Complete')
+        self.camera.start_preview(fullscreen=False, window=(100, 100, 1000, 700))
     
 
     def record(self):
         if self.recording_flag == 0:
-            print('Start Recording')
+            # print('Start Recording')
             self.rec_button.setText('Stop(v)')
             self.recording_flag = 1
         else:
-            print('Stop Recording')
+            # print('Stop Recording')
             self.rec_button.setText('Record(v)')
             self.recording_flag = 0
         
