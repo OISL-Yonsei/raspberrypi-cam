@@ -106,9 +106,13 @@ class CameraApp(QWidget):
     def capture(self):
         self.camera.stop_preview()
         self.camera.resolution = self.camera.MAX_RESOLUTION
-        filename = self.image_prefix.text() + str(self.count).zfill(2) + '.jpg'
-        self.camera.capture(filename)
+        if os.path.isdir(self.image_prefix.text())==False:
+            os.mkdir(self.image_prefix.text())
+            self.count = 1
+        self.filename = self.image_prefix.text() + '/' + self.image_prefix.text() + str(self.count).zfill(2) + '.jpg'
+        self.camera.capture(self.filename)
         self.camera.resolution = 'FHD'
+        self.count = self.count + 1
         # print('Capture Complete')
         self.camera.start_preview(fullscreen=False, window=(100, 100, 1000, 700))
     
@@ -116,13 +120,24 @@ class CameraApp(QWidget):
     def record(self):
         if self.recording_flag == 0:
             # print('Start Recording')
+            # self.camera.stop_preview()
+            # self.camera.resolution = self.camera.MAX_RESOLUTION
             self.rec_button.setText('Stop(v)')
             self.recording_flag = 1
+            if os.path.isdir(self.image_prefix.text())==False:
+                os.mkdir(self.image_prefix.text())
+                self.count = 1
+            self.filename = self.image_prefix.text() + '/' + self.image_prefix.text() + str(self.count).zfill(2) + '.h264'
+            self.count = self.count + 1
+            self.camera.start_recording(self.filename)
+            self.camera.wait_recording()
         else:
             # print('Stop Recording')
+            self.camera.stop_recording()
+            # self.camera.resolution = 'FHD'
             self.rec_button.setText('Record(v)')
+            # self.camera.start_preview(fullscreen=False, window=(100, 100, 1000, 700))
             self.recording_flag = 0
-        
 
     def setting(self):
         if self.start_flag == 0:
@@ -142,7 +157,7 @@ class CameraApp(QWidget):
                 self.camera.awb_mode = 'auto'
             else:
                 self.camera.awb_mode = 'off'
-                self.camera.awb_gain = float(self.gain_value.text())
+                self.camera.awb_gains = float(self.gain_value.text())
 
             if self.iso_auto.isChecked():
                 self.camera.iso = 0
