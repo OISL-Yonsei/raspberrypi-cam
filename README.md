@@ -5,7 +5,8 @@ Raspberrypi camera code using Python3
 1. Install Python3
 2. Install PyQt5 using pip
     ```
-    pip3 install PyQt5
+    sudo apt-get update
+    sudo apt-get install qt5-default pyqt5-dev pyqt5-dev-tools
     ```
 
 ## Reference
