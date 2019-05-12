@@ -8,6 +8,7 @@ import logging
 import socketserver
 from threading import Condition
 from http import server
+import sys
 
 PAGE="""\
 <html>
@@ -17,7 +18,6 @@ PAGE="""\
 <body>
 <center><h1>Raspberry Pi Camera Stream</h1></center>
 <center><img src="stream.mjpg" width="3280" height="2464"></center>
-<input type="button" name="btn1" value="button1" onclick="alert('Hi!!')">
 </body>
 </html>
 """
@@ -84,7 +84,7 @@ class StreamingServer(socketserver.ThreadingMixIn, server.HTTPServer):
 
 with picamera.PiCamera(resolution='2592x1944', framerate=10) as camera:
     output = StreamingOutput()
-    camera.shutter_speed = 7500
+    camera.shutter_speed = int(sys.argv[1])
     camera.exposure_mode = 'off'
     #camera.rotation = 90
     camera.awb_mode='off'
@@ -96,11 +96,3 @@ with picamera.PiCamera(resolution='2592x1944', framerate=10) as camera:
         server.serve_forever()
     finally:
         camera.stop_recording()
-
-
-def capture(self):
-    camera.resolution = (1024, 768)
-    camera.start_preview()
-    # Camera warm-up time
-    sleep(2)
-    camera.capture('foo.jpg')
